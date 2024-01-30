@@ -1,5 +1,4 @@
 #version 460
-//Vertex shader operates on each vertex 
 
 in vec2 vertexPosition;
 in vec4 vertexColor;
@@ -9,9 +8,11 @@ out vec4 fragmentColor;
 out vec2 fragmentPosition;
 out vec2 fragmentUV;
 
+uniform mat4 orthoProjectionMatrix;
+
 void main() {
-	//Set the x, y pos on screen
-	gl_Position.xy = vertexPosition;
+	//Set the position on screen
+    gl_Position.xy = (orthoProjectionMatrix * vec4(vertexPosition, 0.0, 1.0)).xy;
 	//The z pos is 0 since we are in 2d
 	gl_Position.z = 0.0;
 	//Indicate that coords are normalized
@@ -19,5 +20,5 @@ void main() {
 
 	fragmentColor = vertexColor;
 	fragmentPosition = vertexPosition;
-	fragmentUV = vertexUV;
+	fragmentUV = vec2(vertexUV.x, 1.0 - vertexUV.y);
 }
