@@ -1,16 +1,19 @@
 project(GeoPixel)
 
 add_executable(${PROJECT_NAME}
-        main.cpp
-        AutoLoader.h
-        EventRegistration.cpp
-        EventRegistration.h
-        MainGame.cpp
-        Projectile.cpp
-        MainGame.h
-        Projectile.h
-        KeyEvent.h
-        KeyEvent.cpp
+               main.cpp
+               AutoLoader.h
+               EventRegistration.h
+               MainGame.cpp
+               Projectile.cpp
+               MainGame.h
+               Projectile.h
+               events/WindowEvent.cpp
+               events/WindowEvent.h
+               events/PhysicsProcessingEvent.cpp
+               events/PhysicsProcessingEvent.h
+               events/PlayerMoveEvent.cpp
+               events/PlayerMoveEvent.h
 )
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/")

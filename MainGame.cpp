@@ -6,19 +6,26 @@
 #include <ViXeL/data/ResourceManager.h>
 #include <ViXeL/data/Vertex.h>
 
-MainGame::MainGame() : 
-	_windowWidth(1024),
-	_windowHeight(768),
-	_gameState(GameState::RUNNING),
-	_playerPos(glm::vec2(0.0f, 0.0f)),
-	_maxFps(165.0f),
-	_vsync(1),
-	_gameTime(0.0f)
-{
-	_camera.init(_windowWidth, _windowHeight);
+#include "EventRegistration.h"
+#include "event/EventManager.h"
+#include "util/executable/windows/ResourceHelper.h"
+
+GameState MainGame::gameState = GameState::RUNNING;
+
+MainGame::MainGame() :
+    _windowWidth(1024),
+    _windowHeight(768),
+    _camera(ViXeL::Camera<ViXeL::OrthoCamera2D>(_windowWidth, _windowHeight, {0.0f, 0.0f}, 1.0f)),
+    _playerPos(glm::vec2(0.0f, 0.0f)),
+    _maxFps(165.0f),
+    _vsync(1),
+    _gameTime(0.0f) {
+
+    registerEvents();
+
 }
 
-MainGame::~MainGame() {}
+MainGame::~MainGame() = default;
 
 void MainGame::run() {
 	init();
@@ -27,30 +34,28 @@ void MainGame::run() {
 }
 
 void MainGame::init() {
-	ViXeL::init("GeoPixel");
+    ViXeL::init();
 
-	_camera.init(_windowWidth, _windowHeight);
+    _window.create("GeoPixel", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _windowWidth, _windowHeight, SDL_WINDOW_OPENGL);
 
-	_window.create("GeoPixel", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, _windowWidth, _windowHeight, SDL_WINDOW_OPENGL);
-	
-	std::cout << glGetString(GL_VENDOR) << '\n';
-	std::cout << glGetString(GL_RENDERER) << '\n';
-	std::cout << glGetString(GL_VERSION) << '\n';
+    std::cout << glGetString(GL_VENDOR) << '\n';
+    std::cout << glGetString(GL_RENDERER) << '\n';
+    std::cout << glGetString(GL_VERSION) << '\n';
 
-	//Set VSYNC
-	SDL_GL_SetSwapInterval(_vsync);
+    //Set VSYNC
+    SDL_GL_SetSwapInterval(_vsync);
 
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
-	_fpsLimiter.init(_maxFps);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	initShaders();
+    _fpsLimiter.init(_maxFps);
 
-	_spriteBatch.init();
+    initShaders();
 
-	fetchSprites(&_loadedTextures);
+    _spriteBatch.init();
+
+    fetchSprites(&_loadedTextures);
 }
 
 void MainGame::initShaders() {
@@ -62,7 +67,7 @@ void MainGame::initShaders() {
 }
 
 void MainGame::gameLoop() {
-	while (_gameState != GameState::EXIT) {
+	while (gameState != GameState::EXIT) {
 		//Used for frame time measure
 		float startTicks = SDL_GetTicks64();
 		
@@ -74,6 +79,7 @@ void MainGame::gameLoop() {
 
 		processPhysics();
 
+	    //ViXeL::EventManager::getInstance().triggerEvent("RENDER");
 		renderGame();
 
 		static int frameCounter = 0;
@@ -88,7 +94,7 @@ void MainGame::gameLoop() {
 }
 
 void MainGame::processEvents() {
-	SDL_Event event;
+    /*SDL_Event event;
 
 	while (SDL_PollEvent(&event)) {
 		switch (event.type) {
@@ -96,40 +102,41 @@ void MainGame::processEvents() {
 				_gameState = GameState::EXIT;
 				break;
 			case SDL_MOUSEMOTION:
-				_inputManager.onMouseMove(event.motion.x, event.motion.y);
+				ViXeL::InputManager::onMouseMove(event.motion.x, event.motion.y);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				_inputManager.onKeyDown(event.button.button);
+				ViXeL::InputManager::onKeyDown(event.button.button);
 				break;
 			case SDL_MOUSEBUTTONUP:
-				_inputManager.onKeyUp(event.button.button);
+				ViXeL::InputManager::onKeyUp(event.button.button);
 				break;
 			case SDL_KEYDOWN:
-				_inputManager.onKeyDown(event.key.keysym.sym);
+				ViXeL::InputManager::onKeyDown(event.key.keysym.sym);
 				break;
 			case SDL_KEYUP:
-				_inputManager.onKeyUp(event.key.keysym.sym);
+				ViXeL::InputManager::onKeyUp(event.key.keysym.sym);
 				break;
 		}
-	}
+	}*/
+    ViXeL::EventManager::getInstance().parse();
 
-	const float CAMERA_PAN_SPEED = 10.0f;
-	const float CAMERA_ZOOM_SPEED = 0.05f;
+    constexpr float CAMERA_PAN_SPEED = 10.0f;
+	constexpr float CAMERA_ZOOM_SPEED = 0.05f;
 
-	if (_inputManager.getKeyState(SDLK_e)) { _camera.setScale(_camera.getScale() + CAMERA_ZOOM_SPEED); }
+	if (ViXeL::InputManager::getKeyState(SDLK_e)) { _camera.setScale(_camera.getScale() + CAMERA_ZOOM_SPEED); }
 
-	if (_inputManager.getKeyState(SDLK_q)) { _camera.setScale(_camera.getScale() - CAMERA_ZOOM_SPEED); }
+	if (ViXeL::InputManager::getKeyState(SDLK_q)) { _camera.setScale(_camera.getScale() - CAMERA_ZOOM_SPEED); }
 
-	if (_inputManager.getKeyState(SDLK_w)) { _camera.setPos(_camera.getPos() + glm::vec2(0.0f, CAMERA_PAN_SPEED)); }
+	if (ViXeL::InputManager::getKeyState(SDLK_w)) { _camera.setPos(_camera.getPos() + glm::vec2(0.0f, CAMERA_PAN_SPEED)); }
 
-	if (_inputManager.getKeyState(SDLK_a)) { _camera.setPos(_camera.getPos() + glm::vec2(-CAMERA_PAN_SPEED, 0.0f)); }
+	if (ViXeL::InputManager::getKeyState(SDLK_a)) { _camera.setPos(_camera.getPos() + glm::vec2(-CAMERA_PAN_SPEED, 0.0f)); }
 
-	if (_inputManager.getKeyState(SDLK_s)) { _camera.setPos(_camera.getPos() + glm::vec2(0.0f, -CAMERA_PAN_SPEED)); }
+	if (ViXeL::InputManager::getKeyState(SDLK_s)) { _camera.setPos(_camera.getPos() + glm::vec2(0.0f, -CAMERA_PAN_SPEED)); }
 
-	if (_inputManager.getKeyState(SDLK_d)) { _camera.setPos(_camera.getPos() + glm::vec2(CAMERA_PAN_SPEED, 0.0f)); }
+	if (ViXeL::InputManager::getKeyState(SDLK_d)) { _camera.setPos(_camera.getPos() + glm::vec2(CAMERA_PAN_SPEED, 0.0f)); }
 
-	if (_inputManager.getKeyState(SDL_BUTTON_LEFT)) {
-		glm::vec2 mousePos = _inputManager.getMousePos();
+	if (ViXeL::InputManager::getKeyState(SDL_BUTTON_LEFT)) {
+		glm::vec2 mousePos = ViXeL::InputManager::getMousePos();
 		mousePos = _camera.toWorldPos(mousePos);
 
 		glm::vec2 direction = mousePos - _playerPos;
@@ -138,11 +145,11 @@ void MainGame::processEvents() {
 		_projectiles.emplace_back(_playerPos, direction, 0.125f, 1000, glm::vec4(-15.0f, -15.0f, 15.0f, 15.0f));
 	}
 
-	if (_inputManager.getKeyState(SDL_BUTTON_RIGHT)) {
-		_playerPos = _camera.toWorldPos(_inputManager.getMousePos());
+	if (ViXeL::InputManager::getKeyState(SDL_BUTTON_RIGHT)) {
+		_playerPos = _camera.toWorldPos(ViXeL::InputManager::getMousePos());
 	}
 
-	if (_inputManager.getKeyState(SDLK_y)) {
+	if (ViXeL::InputManager::getKeyState(SDLK_y)) {
 		for (int i = 0; i < _projectiles.size(); i++) {
 			_projectiles.pop_back();
 		}
