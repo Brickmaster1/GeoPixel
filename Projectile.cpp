@@ -14,7 +14,7 @@ Projectile::Projectile(glm::vec2 pos, glm::vec2 motionVec, float speed, int life
 
 Projectile::~Projectile() {}
 
-void Projectile::render(ViXeL::SpriteBatch& spriteBatch) {
+void Projectile::render(ViXeL::SpriteBatcher& spriteBatch) {
 	glm::vec4 uvRect(0.0f, 0.0f, 1.0f, 1.0f);
 	static ViXeL::GLTexture texture = ViXeL::ResourceManager::getTexture("Textures/Test_PixelCube.png");
 	ViXeL::Color color;

@@ -1,21 +1,22 @@
 #pragma once
 
 #include <SDL.h>
+#include <map>
+#include <vector>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-#include <vector>
-#include <map>
 
-#include <ViXeL/rendering/GLSLShaderProgram.h>
-#include <ViXeL/rendering/Sprite.h>
 #include <ViXeL/Window.h>
-#include <ViXeL/rendering/camera/Camera.h>
-#include <ViXeL/rendering/SpriteBatch.h>
+#include <ViXeL/data/ResourceManager.h>
 #include <ViXeL/logic/InputManager.h>
 #include <ViXeL/logic/Timing.h>
+#include <ViXeL/model/Mesh.h>
+#include <ViXeL/rendering/GLSLShaderProgram.h>
+#include <ViXeL/rendering/Sprite.h>
+#include <ViXeL/rendering/SpriteBatcher.h>
+#include <ViXeL/rendering/camera/Camera.h>
 
 #include "Projectile.h"
-#include "data/ResourceManager.h"
 
 enum class GameState {RUNNING, EXIT};
 
@@ -43,15 +44,29 @@ private:
 
 	ViXeL::GLSLProgram _colorShaderProgram;
 
-	ViXeL::Camera<ViXeL::OrthoCamera2D> _camera;
+    ViXeL::GLSLProgram _testShaderProgram;
 
-	ViXeL::SpriteBatch _spriteBatch;
+    ViXeL::Camera<ViXeL::PerspectiveCamera3D> _testCamera3d;
+
+	ViXeL::Camera<ViXeL::OrthoCamera2D> _testCamera2d;
+
+	ViXeL::SpriteBatcher _spriteBatch;
 
 	ViXeL::FpsLimiter _fpsLimiter;
 
-	std::vector<std::string> _loadedTextures;
+	std::vector<std::filesystem::path> _loadedTextures;
 
 	std::vector<Projectile> _projectiles;
+
+    ViXeL::Mesh3D cubeMesh;
+    std::vector<glm::vec3> cubePositions;
+
+    bool mouseMoved = false;
+    bool scrolled = false;
+    bool keyPressed = false;
+    bool mouseButtonPressed = false;
+
+    bool render2dEnabled = false;
 
 	glm::vec2 _playerPos;
 

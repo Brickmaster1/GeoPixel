@@ -1,14 +1,14 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include <ViXeL/rendering/SpriteBatch.h>
+#include <ViXeL/rendering/SpriteBatcher.h>
 
 class Projectile {
 public:
 	Projectile(glm::vec2 pos, glm::vec2 motionVec, float speed, int lifetime, glm::vec4 hitbox, float rotation = 0.0f);
 	~Projectile();
 
-	void render(ViXeL::SpriteBatch& spriteBatch);
+	void render(ViXeL::SpriteBatcher& spriteBatch);
 
 	bool update(); //Returns false if lifetime is depleted
 
