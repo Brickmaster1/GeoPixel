@@ -290,7 +290,7 @@ void MainGame::processEvents() {
         }
         
         _testCamera3d.setRotationDegrees(_testCamera3d.getRotationDegrees() + glm::vec2(
-            ViXeL::InputManager::getMousePos().x * 0.05,
+            ViXeL::InputManager::getMousePos().x * CAMERA_ROTATE_SPEED,
             0.0f
         ));
 
