@@ -8,7 +8,7 @@
 #include <ViXeL/data/ResourceManager.h>
 
 void fetchSprites(std::vector<std::filesystem::path>* loadedTexturesList) {
-	for (auto& it : std::filesystem::recursive_directory_iterator("Textures")) {
+    for (auto& it : std::filesystem::recursive_directory_iterator("resources/Textures")) {
 		if (it.path().extension() == ".png") {
 			ViXeL::ResourceManager::getTexture(it.path());
 			loadedTexturesList->push_back(it.path());

@@ -58,7 +58,7 @@ private:
 
 	std::vector<Projectile> _projectiles;
 
-    ViXeL::Mesh3D cubeMesh;
+    ViXeL::Mesh<ViXeL::ColoredTexturedVertex3D> cubeMesh;
     std::vector<glm::vec3> cubePositions;
 
     bool mouseMoved = false;

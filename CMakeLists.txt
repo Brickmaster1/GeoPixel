@@ -28,3 +28,10 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${GL_TARGETS})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ViXeL)
 target_include_directories(${PROJECT_NAME} PUBLIC ViXel ../ViXeL/../)
+
+
+# IDE crashes when trying to use these for some reason
+
+# file(REMOVE_RECURSE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources")
+
+# file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")

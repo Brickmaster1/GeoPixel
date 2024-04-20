@@ -83,13 +83,13 @@ void MainGame::init() {
 }
 
 void MainGame::initShaders() {
-	_colorShaderProgram.compileShaders("Shaders/colorShader.vert", "Shaders/colorShader.frag");
+    _colorShaderProgram.compileShaders("resources/Shaders/colorShader.vert", "resources/Shaders/colorShader.frag");
 	_colorShaderProgram.addAttribute("vertexPosition");
 	_colorShaderProgram.addAttribute("vertexColor");
 	_colorShaderProgram.addAttribute("vertexUV");
 	_colorShaderProgram.linkShaders();
 
-    _testShaderProgram.compileShaders("Shaders/testShader.vert", "Shaders/testShader.frag");
+    _testShaderProgram.compileShaders("resources/Shaders/testShader.vert", "resources/Shaders/testShader.frag");
     _testShaderProgram.addAttribute("vertexPosition");
     _testShaderProgram.addAttribute("vertexColor");
     _testShaderProgram.addAttribute("vertexUV");
@@ -155,7 +155,7 @@ void MainGame::initShaders() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    ViXeL::GLTexture watermellonCatTexture = ViXeL::ResourceManager::getTexture(std::filesystem::path("Textures/2_watermelon-cat.png"));
+    ViXeL::GLTexture watermellonCatTexture = ViXeL::ResourceManager::getTexture(std::filesystem::path("resources/Textures/2_watermelon-cat.png"));
     glBindTexture(GL_TEXTURE_2D, watermellonCatTexture.id);
 
     glBindVertexArray(0);*/
@@ -165,10 +165,10 @@ void MainGame::initShaders() {
     for(int i = 0; i < 36; i++) {
         glm::vec3 vertex = glm::vec3(vertices[i*5], vertices[i*5 + 1], vertices[i*5 + 2]);
         glm::vec2 uv = glm::vec2(vertices[i*5 + 3], vertices[i*5 + 4]);
-        cubeMesh.addVertex(ViXeL::Vertex3D({vertex.x, vertex.y, vertex.z}, {255, 255, 255, 255}, {uv.x, uv.y}));
+        cubeMesh.addVertex(ViXeL::ColoredTexturedVertex3D({vertex.x, vertex.y, vertex.z}, {255, 255, 255, 255}, {uv.x, uv.y}));
     }
 
-    cubeMesh.setTexture(ViXeL::ResourceManager::getTexture(std::filesystem::path("Textures/1_catEatWatermellonBecomeWatermellon.png")));
+    //cubeMesh.setTexture(ViXeL::ResourceManager::getTexture(std::filesystem::path("resources/Textures/1_catEatWatermellonBecomeWatermellon.png")));
 
     cubePositions.push_back(cubeMesh.origin);
     //cubePositions.push_back({10.0f, 0.0f, 0.0f});
@@ -226,7 +226,7 @@ void MainGame::processEvents() {
 
     constexpr float CAMERA_PAN_SPEED = 0.01f;
     constexpr float CAMERA_ROTATE_SPEED = 0.05f;
-    constexpr float CAMERA_ZOOM_SPEED = 0.05f;
+    constexpr float CAMERA_ZOOM_SPEED = 0.45f;
 
     if (keyPressed) {
         if (ViXeL::InputManager::getKeyState(SDLK_w) || ViXeL::InputManager::getKeyState(SDLK_a) || ViXeL::InputManager::getKeyState(SDLK_s) || ViXeL::InputManager::getKeyState(SDLK_d)) {
@@ -298,13 +298,18 @@ void MainGame::processEvents() {
     }
 
     if (scrolled) {
-        if (_testCamera3d.getFovDegrees() > 15.0f && _testCamera3d.getFovDegrees() < 89.95f) {
+        if (_testCamera3d.getFovDegrees() < 89.95f) {
             float zoomAmount = _testCamera3d.getFovDegrees() - (ViXeL::InputManager::getScrollDirection().y * CAMERA_ZOOM_SPEED);
             if(zoomAmount > 15.0f && zoomAmount < 89.95f) {
                 _testCamera3d.setFovDegrees(zoomAmount);
             } else if (zoomAmount < 15.0f) {
                 _testCamera3d.setFovDegrees(15.0f);
-            } else {
+            }
+        } else if (_testCamera3d.getFovDegrees() > 15.0f) {
+            float zoomAmount = _testCamera3d.getFovDegrees() - (ViXeL::InputManager::getScrollDirection().y * CAMERA_ZOOM_SPEED);
+            if(zoomAmount > 15.0f && zoomAmount < 89.95f) {
+                _testCamera3d.setFovDegrees(zoomAmount);
+            } else if (zoomAmount > 89.95f) {
                 _testCamera3d.setFovDegrees(89.95f);
             }
         }
@@ -427,16 +432,20 @@ void MainGame::renderGame() {
     _testShaderProgram.bind();
     glActiveTexture(GL_TEXTURE0);
 
+    ViXeL::GLTexture watermellonCatTexture = ViXeL::ResourceManager::getTexture(std::filesystem::path("resources/Textures/catEatWatermellonBecomeWatermellon.png"));
+    glBindTexture(GL_TEXTURE_2D, watermellonCatTexture.id);
 
-
-    GLint isTexturedLocation = _testShaderProgram.getUniformLocation("isTextured");
+    /*GLint isTexturedLocation = _testShaderProgram.getUniformLocation("isTextured");
     if(cubeMesh.isTextured()) {
         glUniform1i(isTexturedLocation, 1);
         GLint textureLocation = _testShaderProgram.getUniformLocation("textureSampler");
         glUniform1i(textureLocation, 0);
     } else {
         glUniform1i(isTexturedLocation, 0);
-    }
+    }*/
+
+    GLint textureLocation = _testShaderProgram.getUniformLocation("textureSampler");
+    glUniform1i(textureLocation, 0);
 
     GLint cameraMatrixLocation = _testShaderProgram.getUniformLocation("cameraMatrix");
     glm::mat4 cameraMatrix = _testCamera3d.getCameraMatrix();
