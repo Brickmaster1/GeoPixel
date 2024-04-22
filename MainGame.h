@@ -15,6 +15,8 @@
 #include <ViXeL/rendering/Sprite.h>
 #include <ViXeL/rendering/SpriteBatcher.h>
 #include <ViXeL/rendering/camera/Camera.h>
+#include <ViXeL/util/Templating.h>
+#include <ViXeL/util/Typing.h>
 
 #include "Projectile.h"
 
@@ -48,7 +50,10 @@ private:
 
     ViXeL::Camera<ViXeL::PerspectiveCamera3D> _testCamera3d;
 
-	ViXeL::Camera<ViXeL::OrthoCamera2D> _testCamera2d;
+    ViXeL::Camera<ViXeL::Camera2D> _testCamera2d;
+
+    using CameraSelection = type_selection<ViXeL::Camera<ViXeL::Camera2D>, ViXeL::Camera<ViXeL::OrthoCamera3D>, ViXeL::Camera<ViXeL::PerspectiveCamera3D>>;
+    std::vector<CameraSelection> _cameras;
 
 	ViXeL::SpriteBatcher _spriteBatch;
 
