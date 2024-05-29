@@ -15,20 +15,26 @@ add_executable(${PROJECT_NAME}
 
 target_include_directories(${PROJECT_NAME} PUBLIC "/")
 
+if(VCPKG_TARGET_TRIPLET STREQUAL "wasm32-emscripten")
+    # Output an html file (along with the js and wasm of course)
+    set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")
+
+    # For clangd
+    execute_process(COMMAND em++ --cflags
+                    OUTPUT_VARIABLE EM_CFLAGS
+                    )
+
+    set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${EM_CFLAGS}")
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL2::SDL2-static)
-add_definitions(-DSDL_MAIN_HANDLED)
+if(NOT VCPKG_TARGET_TRIPLET STREQUAL "wasm32-emscripten")
+    add_definitions(-DSDL_MAIN_HANDLED)
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
-
-target_link_libraries(${PROJECT_NAME} PUBLIC ${GL_TARGETS})
+    target_link_libraries(${PROJECT_NAME} PUBLIC GLEW::GLEW-static)
+endif()
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ViXeL)
 target_include_directories(${PROJECT_NAME} PUBLIC ViXel ../ViXeL/../)
 
-
-# IDE crashes when trying to use these for some reason
-
-# file(REMOVE_RECURSE "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/resources")
-
-# file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+target_link_libraries(${PROJECT_NAME} PUBLIC glm::glm)
