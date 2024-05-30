@@ -4,6 +4,6 @@
 
 class PhysicsProcessingEvent : public ViXeL::Event {
 public:
-    void *action(void* physicsObjects) override;
+    void* action(void* physicsObjects) override;
 
 };
