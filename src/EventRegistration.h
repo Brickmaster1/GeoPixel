@@ -2,6 +2,7 @@
 #pragma once
 
 #include <ViXeL/event/EventManager.h>
+#include <SDL2/SDL_events.h>
 #include "events/PhysicsProcessingEvent.h"
 #include "events/WindowEvent.h"
 

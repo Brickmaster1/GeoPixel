@@ -1,16 +1,16 @@
 #include "MainGame.h"
 
+#include "AutoLoader.h"
+#include "EventRegistration.h"
+
+#include <glm/ext/matrix_transform.hpp>
 #include <ViXeL/ViXeL.h>
 #include <ViXeL/data/ResourceManager.h>
 #include <ViXeL/data/Vertex.h>
 #include <ViXeL/error/Errors.h>
 #include <ViXeL/event/EventManager.h>
-#include <glm/ext/matrix_transform.hpp>
+#include <ViXeL/Window.h>
 
-#include "AutoLoader.h"
-#include "EventRegistration.h"
-
-#include <typeinfo>
 
 GameState MainGame::gameState = GameState::RUNNING;
 
@@ -31,7 +31,7 @@ glm::vec3 cubePositions[] = {
 MainGame::MainGame() :
     _windowWidth(1024),
     _windowHeight(768),
-    _testCamera2d(ViXeL::Camera<ViXeL::Camera2D>(_windowWidth, _windowHeight, {0.0f, 0.0f}, 1.0f)),
+    _testCamera2d(ViXeL::Camera<ViXeL::OrthoCamera2D>(_windowWidth, _windowHeight, {0.0f, 0.0f}, 1.0f)),
     _testCamera3d(ViXeL::Camera<ViXeL::PerspectiveCamera3D>(_windowWidth, _windowHeight, {0.0f, 0.0f, 0.0f}, 1.0f, 45.0f, { -90.0f, 0.0f },  0.1f)),
     _playerPos(glm::vec2(0.0f, 0.0f)),
     _maxFps(165.0f),
@@ -82,9 +82,6 @@ void MainGame::init() {
     ViXeL::EventManager::getInstance().listenForEvent(std::to_string(SDL_MOUSEMOTION), &mouseMoved);
     ViXeL::EventManager::getInstance().listenForEvent(std::to_string(SDL_MOUSEWHEEL), &scrolled);
     ViXeL::EventManager::getInstance().listenForEvent(std::to_string(SDL_MOUSEBUTTONDOWN), &mouseButtonPressed);
-
-
-    _cameras.push_back({_testCamera2d});
 }
 
 void MainGame::initShaders() {
@@ -229,8 +226,6 @@ void MainGame::gameLoop() {
 void MainGame::processEvents() {
     ViXeL::EventManager::getInstance().parse();
 
-    constexpr bool CAMERA_PERSPECTIVE = false;
-
     constexpr float CAMERA_PAN_SPEED = 0.01f;
     constexpr float CAMERA_ROTATE_SPEED = 0.05f;
     constexpr float CAMERA_ZOOM_SPEED = 0.45f;
@@ -304,25 +299,23 @@ void MainGame::processEvents() {
         mouseMoved = false;
     }
 
-    if (CAMERA_PERSPECTIVE) {
-        if (scrolled) {
-            if (_testCamera3d.getFovDegrees() < 89.95f) {
-                float zoomAmount = _testCamera3d.getFovDegrees() - (ViXeL::InputManager::getScrollDirection().y * CAMERA_ZOOM_SPEED);
-                if(zoomAmount > 15.0f && zoomAmount < 89.95f) {
-                    _testCamera3d.setFovDegrees(zoomAmount);
-                } else if (zoomAmount < 15.0f) {
-                    _testCamera3d.setFovDegrees(15.0f);
-                }
-            } else if (_testCamera3d.getFovDegrees() > 15.0f) {
-                float zoomAmount = _testCamera3d.getFovDegrees() - (ViXeL::InputManager::getScrollDirection().y * CAMERA_ZOOM_SPEED);
-                if(zoomAmount > 15.0f && zoomAmount < 89.95f) {
-                    _testCamera3d.setFovDegrees(zoomAmount);
-                } else if (zoomAmount > 89.95f) {
-                    _testCamera3d.setFovDegrees(89.95f);
-                }
+    if (scrolled) {
+        if (_testCamera3d.getFovDegrees() < 89.95f) {
+            float zoomAmount = _testCamera3d.getFovDegrees() - (ViXeL::InputManager::getScrollDirection().y * CAMERA_ZOOM_SPEED);
+            if(zoomAmount > 15.0f && zoomAmount < 89.95f) {
+                _testCamera3d.setFovDegrees(zoomAmount);
+            } else if (zoomAmount < 15.0f) {
+                _testCamera3d.setFovDegrees(15.0f);
             }
-            scrolled = false;
+        } else if (_testCamera3d.getFovDegrees() > 15.0f) {
+            float zoomAmount = _testCamera3d.getFovDegrees() - (ViXeL::InputManager::getScrollDirection().y * CAMERA_ZOOM_SPEED);
+            if(zoomAmount > 15.0f && zoomAmount < 89.95f) {
+                _testCamera3d.setFovDegrees(zoomAmount);
+            } else if (zoomAmount > 89.95f) {
+                _testCamera3d.setFovDegrees(89.95f);
+            }
         }
+        scrolled = false;
     }
 
     if (mouseButtonPressed) {

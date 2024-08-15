@@ -1,7 +1,7 @@
 #include "Projectile.h"
-#include <ViXeL/data/ResourceManager.h>
 
-#include "data/Vertex.h"
+#include <ViXeL/data/ResourceManager.h>
+#include <ViXeL/data/Vertex.h>
 
 Projectile::Projectile(glm::vec2 pos, glm::vec2 motionVec, float speed, int lifetime, glm::vec4 hitbox, float rotation) :
 	_pos(pos),

@@ -1,11 +1,10 @@
 #pragma once
 
-#include <SDL.h>
-#include <map>
-#include <vector>
+#include "Projectile.h"
+
+#include <SDL2/SDL.h>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
-
 #include <ViXeL/Window.h>
 #include <ViXeL/data/ResourceManager.h>
 #include <ViXeL/logic/InputManager.h>
@@ -15,10 +14,10 @@
 #include <ViXeL/rendering/Sprite.h>
 #include <ViXeL/rendering/SpriteBatcher.h>
 #include <ViXeL/rendering/camera/Camera.h>
-#include <ViXeL/util/Templating.h>
-#include <ViXeL/util/Typing.h>
 
-#include "Projectile.h"
+#include <map>
+#include <vector>
+
 
 enum class GameState {RUNNING, EXIT};
 
@@ -28,6 +27,10 @@ public:
 	~MainGame();
 
 	void run();
+
+	void setMaxFps(int fps) {
+		_maxFps = fps;
+	}
 
     static GameState gameState;
 
@@ -50,10 +53,7 @@ private:
 
     ViXeL::Camera<ViXeL::PerspectiveCamera3D> _testCamera3d;
 
-    ViXeL::Camera<ViXeL::Camera2D> _testCamera2d;
-
-    using CameraSelection = type_selection<ViXeL::Camera<ViXeL::Camera2D>, ViXeL::Camera<ViXeL::OrthoCamera3D>, ViXeL::Camera<ViXeL::PerspectiveCamera3D>>;
-    std::vector<CameraSelection> _cameras;
+	ViXeL::Camera<ViXeL::OrthoCamera2D> _testCamera2d;
 
 	ViXeL::SpriteBatcher _spriteBatch;
 

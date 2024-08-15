@@ -1,13 +1,15 @@
 #pragma once
 
+#include <ViXeL/data/ResourceManager.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
 #include <filesystem>
 
-#include <ViXeL/data/ResourceManager.h>
 
-void fetchSprites(std::vector<std::filesystem::path>* loadedTexturesList) {
+
+inline void fetchSprites(std::vector<std::filesystem::path>* loadedTexturesList) {
     for (auto& it : std::filesystem::recursive_directory_iterator("resources/Textures")) {
 		if (it.path().extension() == ".png") {
 			ViXeL::ResourceManager::getTexture(it.path());
@@ -17,6 +19,6 @@ void fetchSprites(std::vector<std::filesystem::path>* loadedTexturesList) {
 	}
 }
 
-void fetchShader() {
+inline void fetchShader() {
 	//static ViXeL::GLShader shader = ViXeL::ResourceManager::getShader("Shaders/Test_PixelCube.vert", "Shaders/Test_PixelCube.frag");
 }
